@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            padding: 20px;
+            padding-bottom: 100px;
+            /* Space for player */
+        }
+        
+        .card {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background-color: #2a2a2a;
+            color: #ffffff;
+        }
+        
+        .list-group-item {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border-color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .list-group-item:hover {
+            background-color: #2a2a2a;
+        }
+        
+        .btn-primary {
+            background-color: #1db954;
+            border-color: #1db954;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1ed760;
+            border-color: #1ed760;
+        }
+        
+        .player-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #1a1a1a;
+            padding: 10px 20px;
+            border-top: 1px solid #333;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .player-container.active {
+            display: block;
+        }
+        
+        .player-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .now-playing {
+            flex-grow: 1;
+        }
+        
+        .player-wrapper {
+            width: 320px;
+            height: 180px;
+        }
+        
+        .player-wrapper iframe {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .song-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .song-item:hover {
+            background-color: #2a2a2a;
+        }
+        
+        .song-info {
+            flex-grow: 1;
+        }
+        
+        .play-button {
+            margin-left: 10px;
+            color: #1db954;
+            cursor: pointer;
+        }
+        
+        .play-button:hover {
+            color: #1ed760;
+        }
+        
+        .close-player {
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+        }
+        
+        .close-player:hover {
+            color: #1db954;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Music Player</h1>
+            <button class="btn btn-primary" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Playlists</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="playlistsList" class="list-group"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Songs in Playlist</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="songsList" class="list-group"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="playerContainer" class="player-container">
+        <div class="player-content">
+            <div class="now-playing">
+                <h5 class="mb-1">Now Playing</h5>
+                <p id="currentSong" class="mb-0">No song selected</p>
+            </div>
+            <div class="player-wrapper">
+                <iframe id="player" width="320" height="180" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="close-player" onclick="closePlayer()">×</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPlaylistId = null;
+        let currentSongIndex = -1;
+
+        // Play a song
+        function playSong(index, song) {
+            console.log('Playing song:', song);
+            currentSongIndex = index;
+            const videoId = extractVideoId(song.youtube_url);
+            console.log('Extracted video ID:', videoId);
+
+            if (videoId) {
+                const player = document.getElementById('player');
+                player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&showinfo=0&modestbranding=1`;
+                document.getElementById('currentSong').textContent = `${song.title} - ${song.artist}`;
+                document.getElementById('playerContainer').classList.add('active');
+            } else {
+                console.error('Invalid YouTube URL:', song.youtube_url);
+            }
+        }
+
+        // Close player
+        function closePlayer() {
+            document.getElementById('playerContainer').classList.remove('active');
+            const player = document.getElementById('player');
+            player.src = '';
+        }
+
+        // Extract video ID from YouTube URL
+        function extractVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // Play next song in playlist
+        async function playNextSong() {
+            if (!currentPlaylistId) return;
+
+            try {
+                const response = await fetch(`/api/playlists/${currentPlaylistId}/songs`);
+                const data = await response.json();
+                const songs = data.songs;
+
+                if (songs.length === 0) return;
+
+                currentSongIndex = (currentSongIndex + 1) % songs.length;
+                playSong(currentSongIndex, songs[currentSongIndex]);
+            } catch (error) {
+                console.error('Error playing next song:', error);
+            }
+        }
+
+        // Check if user is logged in
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/user');
+                if (!response.ok) {
+                    window.location.href = '/auth.html';
+                }
+            } catch (error) {
+                window.location.href = '/auth.html';
+            }
+        }
+
+        // Load playlists
+        async function loadPlaylists() {
+            try {
+                const response = await fetch('/api/playlists');
+                const playlists = await response.json();
+                const playlistsList = document.getElementById('playlistsList');
+                playlistsList.innerHTML = '';
+
+                if (playlists.length === 0) {
+                    playlistsList.innerHTML = '<div class="alert alert-info">No playlists found</div>';
+                    return;
+                }
+
+                playlists.forEach(playlist => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item';
+                    item.innerHTML = `
+                        <h6 class="mb-1">${playlist.name}</h6>
+                        <p class="mb-1">Created by: ${playlist.owner_name}</p>
+                    `;
+                    item.onclick = () => loadSongs(playlist.id);
+                    playlistsList.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Error loading playlists:', error);
+            }
+        }
+
+        // Load songs for a playlist
+        async function loadSongs(playlistId) {
+            try {
+                currentPlaylistId = playlistId;
+                const response = await fetch(`/api/playlists/${playlistId}/songs`);
+                const data = await response.json();
+                const songsList = document.getElementById('songsList');
+                songsList.innerHTML = '';
+
+                if (!data.songs || data.songs.length === 0) {
+                    songsList.innerHTML = '<div class="alert alert-info">No songs in this playlist</div>';
+                    return;
+                }
+
+                // Add playlist info
+                const playlistInfo = document.createElement('div');
+                playlistInfo.className = 'alert alert-info mb-3';
+                playlistInfo.innerHTML = `
+                    <h5>${data.playlist.name}</h5>
+                    <p class="mb-0">Created by: ${data.playlist.owner_name}</p>
+                `;
+                songsList.appendChild(playlistInfo);
+
+                // Add songs
+                data.songs.forEach((song, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'song-item';
+                    item.innerHTML = `
+                        <div class="song-info">
+                            <h6 class="mb-1">${song.title}</h6>
+                            <p class="mb-0">Artist: ${song.artist}</p>
+                        </div>
+                        <div class="play-button" onclick="playSong(${index}, ${JSON.stringify(song).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-play"></i> Play
+                        </div>
+                    `;
+                    songsList.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Error loading songs:', error);
+            }
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await fetch('/api/logout', {
+                    method: 'POST'
+                });
+                window.location.href = '/auth.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        }
+
+        // Check auth and load data on page load
+        checkAuth().then(() => {
+            loadPlaylists();
+        });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</body>
+
+</html>

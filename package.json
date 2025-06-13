@@ -1,0 +1,16 @@
+{
+    "name": "music-app-backend",
+    "version": "1.0.0",
+    "description": "Backend for Music App",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "sqlite3": "^5.0.2",
+        "bcryptjs": "^2.4.3",
+        "express-session": "^1.17.2",
+        "node-fetch": "^2.6.1"
+    }
+}

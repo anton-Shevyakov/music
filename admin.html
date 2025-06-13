@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Music App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            padding: 20px;
+        }
+        
+        .card {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background-color: #2a2a2a;
+            color: #ffffff;
+        }
+        
+        .list-group-item {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border-color: #333;
+        }
+        
+        .btn-primary {
+            background-color: #1db954;
+            border-color: #1db954;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1ed760;
+            border-color: #1ed760;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background-color: #bb2d3b;
+            border-color: #bb2d3b;
+        }
+        
+        .table {
+            color: #ffffff;
+        }
+        
+        .table td,
+        .table th {
+            border-color: #333;
+        }
+        
+        .form-control,
+        .form-select {
+            background-color: #2a2a2a;
+            border-color: #333;
+            color: #ffffff;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+            background-color: #2a2a2a;
+            border-color: #1db954;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Admin Panel</h1>
+            <div>
+                <a href="/" class="btn btn-primary me-2">View Site</a>
+                <button class="btn btn-danger" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Create Playlist</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="playlistForm">
+                            <div class="mb-3">
+                                <label for="playlistName" class="form-label">Playlist Name</label>
+                                <input type="text" class="form-control" id="playlistName" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Playlist</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Add Song</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="songForm">
+                            <div class="mb-3">
+                                <label for="playlistSelect" class="form-label">Select Playlist</label>
+                                <select class="form-select" id="playlistSelect" required></select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="youtubeUrl" class="form-label">YouTube URL</label>
+                                <input type="url" class="form-control" id="youtubeUrl" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Song</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body text-center">
+                                        <h3 id="totalUsers">0</h3>
+                                        <p class="mb-0">Users</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body text-center">
+                                        <h3 id="totalPlaylists">0</h3>
+                                        <p class="mb-0">Playlists</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body text-center">
+                                        <h3 id="totalSongs">0</h3>
+                                        <p class="mb-0">Songs</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Playlist Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Owner</th>
+                                        <th>Created At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="playlistsList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Songs in Playlist</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Artist</th>
+                                        <th>YouTube URL</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="songsList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Registered Users</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Created At</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <input type="hidden" id="editUserId">
+                        <div class="mb-3">
+                            <label for="editUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="editUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editRole" class="form-label">Role</label>
+                            <select class="form-select" id="editRole" required>
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="updateUser()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load statistics
+        async function loadStats() {
+            try {
+                console.log('Fetching statistics...');
+                const response = await fetch('/api/admin/stats');
+                console.log('Stats response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load statistics: ${response.status}`);
+                }
+
+                const stats = await response.json();
+                console.log('Received stats:', stats);
+
+                // Update statistics with error handling
+                const totalUsers = document.getElementById('totalUsers');
+                const totalPlaylists = document.getElementById('totalPlaylists');
+                const totalSongs = document.getElementById('totalSongs');
+
+                if (totalUsers) totalUsers.textContent = stats.totalUsers || '0';
+                if (totalPlaylists) totalPlaylists.textContent = stats.totalPlaylists || '0';
+                if (totalSongs) totalSongs.textContent = stats.totalSongs || '0';
+
+                console.log('Statistics updated successfully');
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                // Set default values in case of error
+                document.getElementById('totalUsers').textContent = '0';
+                document.getElementById('totalPlaylists').textContent = '0';
+                document.getElementById('totalSongs').textContent = '0';
+            }
+        }
+
+        // Load all users
+        async function loadUsers() {
+            try {
+                console.log('Fetching users...');
+                const response = await fetch('/api/admin/users');
+                console.log('Users response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load users: ${response.status}`);
+                }
+
+                const users = await response.json();
+                console.log('Received users:', users);
+
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '';
+
+                if (users.length === 0) {
+                    usersList.innerHTML = '<tr><td colspan="4" class="text-center">No users found</td></tr>';
+                    return;
+                }
+
+                users.forEach(user => {
+                    const item = document.createElement('tr');
+                    item.innerHTML = `
+                        <td>${user.username || 'N/A'}</td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>${user.role || 'user'}</td>
+                        <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
+                    `;
+                    usersList.appendChild(item);
+                });
+
+                console.log('Users list updated successfully');
+            } catch (error) {
+                console.error('Error loading users:', error);
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '<tr><td colspan="4" class="text-center">Error loading users</td></tr>';
+            }
+        }
+
+        // Edit user
+        function editUser(id, username, email, role) {
+            document.getElementById('editUserId').value = id;
+            document.getElementById('editUsername').value = username;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editRole').value = role;
+
+            new bootstrap.Modal(document.getElementById('editUserModal')).show();
+        }
+
+        // Update user
+        async function updateUser() {
+            const id = document.getElementById('editUserId').value;
+            const username = document.getElementById('editUsername').value;
+            const email = document.getElementById('editEmail').value;
+            const role = document.getElementById('editRole').value;
+
+            try {
+                const response = await fetch(`/api/admin/users/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        role
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to update user');
+
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                loadUsers();
+                loadStats();
+            } catch (error) {
+                console.error('Error updating user:', error);
+                alert('Failed to update user');
+            }
+        }
+
+        // Check if user is admin
+        async function checkAdmin() {
+            try {
+                console.log('Checking admin status...');
+                const response = await fetch('/api/user');
+                console.log('Auth response status:', response.status);
+
+                if (!response.ok) {
+                    console.log('Not authenticated, redirecting to auth page');
+                    window.location.href = '/auth.html';
+                    return;
+                }
+
+                const user = await response.json();
+                console.log('User data:', user);
+
+                if (user.role !== 'admin') {
+                    console.log('Not an admin, redirecting to main page');
+                    window.location.href = '/index.html';
+                }
+
+                console.log('Admin check passed');
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                window.location.href = '/auth.html';
+            }
+        }
+
+        // Load songs for a playlist
+        async function loadSongs(playlistId) {
+            try {
+                console.log('Loading songs for playlist:', playlistId);
+                const response = await fetch(`/api/playlists/${playlistId}/songs`);
+                console.log('Songs response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load songs: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Received songs:', data);
+
+                const songsList = document.getElementById('songsList');
+                songsList.innerHTML = '';
+
+                if (!data.songs || data.songs.length === 0) {
+                    songsList.innerHTML = '<tr><td colspan="4" class="text-center">No songs in this playlist</td></tr>';
+                    return;
+                }
+
+                // Add songs
+                data.songs.forEach(song => {
+                    const item = document.createElement('tr');
+                    item.innerHTML = `
+                        <td>${song.title || 'Unknown Title'}</td>
+                        <td>${song.artist || 'Unknown Artist'}</td>
+                        <td><a href="${song.youtube_url}" target="_blank" class="text-info">${song.youtube_url}</a></td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="deleteSong(${playlistId}, ${song.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    songsList.appendChild(item);
+                });
+
+                console.log('Songs list updated successfully');
+            } catch (error) {
+                console.error('Error loading songs:', error);
+                const songsList = document.getElementById('songsList');
+                songsList.innerHTML = '<tr><td colspan="4" class="text-center">Error loading songs</td></tr>';
+            }
+        }
+
+        // Delete song
+        async function deleteSong(playlistId, songId) {
+            if (!confirm('Are you sure you want to delete this song?')) return;
+
+            try {
+                console.log('Deleting song:', songId, 'from playlist:', playlistId);
+                const response = await fetch(`/api/playlists/${playlistId}/songs/${songId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to delete song: ${response.status}`);
+                }
+
+                console.log('Song deleted successfully');
+                loadSongs(playlistId);
+            } catch (error) {
+                console.error('Error deleting song:', error);
+                alert('Failed to delete song');
+            }
+        }
+
+        // Update loadPlaylists function to include view songs button
+        async function loadPlaylists() {
+            try {
+                console.log('Fetching playlists...');
+                const response = await fetch('/api/playlists');
+                console.log('Playlists response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load playlists: ${response.status}`);
+                }
+
+                const playlists = await response.json();
+                console.log('Received playlists:', playlists);
+
+                const playlistsList = document.getElementById('playlistsList');
+                const playlistSelect = document.getElementById('playlistSelect');
+
+                playlistsList.innerHTML = '';
+                playlistSelect.innerHTML = '<option value="">Select a playlist</option>';
+
+                if (!playlists || playlists.length === 0) {
+                    playlistsList.innerHTML = '<tr><td colspan="4" class="text-center">No playlists found</td></tr>';
+                    return;
+                }
+
+                playlists.forEach(playlist => {
+                    // Add to playlists table
+                    const item = document.createElement('tr');
+                    item.innerHTML = `
+                        <td>${playlist.name}</td>
+                        <td>${playlist.owner_name || 'Unknown'}</td>
+                        <td>${new Date(playlist.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-2" onclick="loadSongs(${playlist.id})">
+                                <i class="fas fa-music"></i> View Songs
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deletePlaylist(${playlist.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    playlistsList.appendChild(item);
+
+                    // Add to select dropdown
+                    const option = document.createElement('option');
+                    option.value = playlist.id;
+                    option.textContent = playlist.name;
+                    playlistSelect.appendChild(option);
+                });
+
+                console.log('Playlists updated successfully');
+            } catch (error) {
+                console.error('Error loading playlists:', error);
+                const playlistsList = document.getElementById('playlistsList');
+                playlistsList.innerHTML = '<tr><td colspan="4" class="text-center">Error loading playlists</td></tr>';
+            }
+        }
+
+        // Delete playlist
+        async function deletePlaylist(playlistId) {
+            if (!confirm('Are you sure you want to delete this playlist?')) return;
+
+            try {
+                console.log('Deleting playlist:', playlistId);
+                const response = await fetch(`/api/playlists/${playlistId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to delete playlist: ${response.status}`);
+                }
+
+                console.log('Playlist deleted successfully');
+                loadPlaylists();
+            } catch (error) {
+                console.error('Error deleting playlist:', error);
+                alert('Failed to delete playlist');
+            }
+        }
+
+        // Create playlist
+        document.getElementById('playlistForm').addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const name = document.getElementById('playlistName').value;
+
+            if (!name) {
+                alert('Please enter a playlist name');
+                return;
+            }
+
+            try {
+                console.log('Creating playlist:', name);
+                const response = await fetch('/api/playlists', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to create playlist');
+                }
+
+                console.log('Playlist created:', data);
+
+                document.getElementById('playlistName').value = '';
+                alert('Playlist created successfully');
+                loadPlaylists();
+            } catch (error) {
+                console.error('Error creating playlist:', error);
+                alert(error.message || 'Failed to create playlist');
+            }
+        });
+
+        // Add song to playlist
+        document.getElementById('songForm').addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const playlistId = document.getElementById('playlistSelect').value;
+            const youtubeUrl = document.getElementById('youtubeUrl').value;
+
+            if (!playlistId) {
+                alert('Please select a playlist first');
+                return;
+            }
+
+            if (!youtubeUrl) {
+                alert('Please enter a YouTube URL');
+                return;
+            }
+
+            try {
+                console.log('Adding song to playlist:', playlistId);
+                console.log('YouTube URL:', youtubeUrl);
+
+                const response = await fetch(`/api/playlists/${playlistId}/songs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        youtube_url: youtubeUrl
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to add song');
+                }
+
+                const result = await response.json();
+                console.log('Song added:', result);
+
+                document.getElementById('youtubeUrl').value = '';
+                alert('Song added successfully');
+
+                // Reload songs for the current playlist
+                loadSongs(playlistId);
+            } catch (error) {
+                console.error('Error adding song:', error);
+                alert(error.message || 'Failed to add song');
+            }
+        });
+
+        // Load data on page load
+        checkAdmin().then(() => {
+            console.log('Loading initial data...');
+            loadStats();
+            loadUsers();
+            loadPlaylists();
+        });
+    </script>
+</body>
+
+</html>
