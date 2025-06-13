@@ -1,0 +1,117 @@
+// Database schema for e-commerce application
+
+// Users table
+Table users {
+  id integer [pk, increment]
+  username varchar [not null, unique]
+  email varchar [not null, unique]
+  password_hash varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (username)
+    (email)
+  }
+}
+
+// Categories table
+Table categories {
+  id integer [pk, increment]
+  name varchar [not null]
+  description text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (name)
+  }
+}
+
+// Products table
+Table products {
+  id integer [pk, increment]
+  name varchar [not null]
+  description text
+  price decimal(10,2) [not null]
+  category_id integer [ref: > categories.id]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (name)
+    (category_id)
+  }
+}
+
+// Orders table
+Table orders {
+  id integer [pk, increment]
+  user_id integer [ref: > users.id]
+  total_amount decimal(10,2) [not null]
+  status varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (user_id)
+    (status)
+  }
+}
+
+// Order items table
+Table order_items {
+  id integer [pk, increment]
+  order_id integer [ref: > orders.id]
+  product_id integer [ref: > products.id]
+  quantity integer [not null]
+  price decimal(10,2) [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (order_id)
+    (product_id)
+  }
+}
+
+// Reviews table
+Table reviews {
+  id integer [pk, increment]
+  user_id integer [ref: > users.id]
+  product_id integer [ref: > products.id]
+  rating integer [not null]
+  comment text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (user_id)
+    (product_id)
+  }
+}
+
+// Cart table
+Table cart {
+  id integer [pk, increment]
+  user_id integer [ref: > users.id]
+  product_id integer [ref: > products.id]
+  quantity integer [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (user_id)
+    (product_id)
+  }
+}
+
+// Relationships
+Ref: users.id < orders.user_id
+Ref: categories.id < products.category_id
+Ref: orders.id < order_items.order_id
+Ref: products.id < order_items.product_id
+Ref: users.id < reviews.user_id
+Ref: products.id < reviews.product_id
+Ref: users.id < cart.user_id
+Ref: products.id < cart.product_id 

@@ -1,16 +1,19 @@
 {
-    "name": "music-app-backend",
+    "name": "music-playlist-manager",
     "version": "1.0.0",
-    "description": "Backend for Music App",
+    "description": "A web application for managing music playlists with YouTube integration",
     "main": "server.js",
     "scripts": {
         "start": "node server.js"
     },
     "dependencies": {
-        "express": "^4.17.1",
-        "sqlite3": "^5.0.2",
-        "bcryptjs": "^2.4.3",
-        "express-session": "^1.17.2",
-        "node-fetch": "^2.6.1"
-    }
+        "bcryptjs": "^3.0.2",
+        "express": "^4.21.2",
+        "express-session": "^1.18.1",
+        "node-fetch": "^2.7.0",
+        "sqlite3": "^5.1.7"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
 }

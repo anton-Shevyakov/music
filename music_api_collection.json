@@ -1,0 +1,165 @@
+{
+    "info": {
+        "_postman_id": "music-api-collection",
+        "name": "Music API",
+        "description": "API для управління музичними плейлистами",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [{
+            "name": "Автентифікація",
+            "item": [{
+                    "name": "Реєстрація",
+                    "request": {
+                        "method": "POST",
+                        "header": [{
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"test_user\",\n    \"password\": \"test_password\",\n    \"email\": \"test@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:3000/api/register",
+                            "protocol": "http",
+                            "host": ["localhost"],
+                            "port": "3000",
+                            "path": ["api", "register"]
+                        }
+                    }
+                },
+                {
+                    "name": "Вхід",
+                    "request": {
+                        "method": "POST",
+                        "header": [{
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"test_user\",\n    \"password\": \"test_password\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "login"]
+                        }
+                    }
+                },
+                {
+                    "name": "Вихід",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{base_url}}/api/logout",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "logout"]
+                        }
+                    }
+                },
+                {
+                    "name": "Отримати інформацію про користувача",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/user",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "user"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Плейлисти",
+            "item": [{
+                    "name": "Отримати список плейлистів",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/playlists",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "playlists"]
+                        }
+                    }
+                },
+                {
+                    "name": "Створити плейлист",
+                    "request": {
+                        "method": "POST",
+                        "header": [{
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Мій плейлист\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/playlists",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "playlists"]
+                        }
+                    }
+                },
+                {
+                    "name": "Видалити плейлист",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{base_url}}/api/playlists/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "playlists", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Пісні",
+            "item": [{
+                    "name": "Отримати пісні плейлисту",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/playlists/1/songs",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "playlists", "1", "songs"]
+                        }
+                    }
+                },
+                {
+                    "name": "Додати пісню до плейлисту",
+                    "request": {
+                        "method": "POST",
+                        "header": [{
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Назва пісні\",\n    \"author_name\": \"Автор\",\n    \"youtube_url\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/playlists/1/songs",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "playlists", "1", "songs"]
+                        }
+                    }
+                },
+                {
+                    "name": "Видалити пісню з плейлисту",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{base_url}}/api/playlists/1/songs/1",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "playlists", "1", "songs", "1"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
